@@ -24,13 +24,12 @@ root.withdraw()
 srcdir = filedialog.askdirectory(title='Please select a source directory.')
 mrrdir = filedialog.askdirectory(title='Please select a mirror directory.')
 result = ""
-try: #Python2
+try:#Python2
     result = tkMessageBox.askyesno("Confirm","Proceed with copy operation?")
 except:#Python3
     result = messagebox.askyesno("Confirm","Proceed with copy operation?")
 
 
-print(result)
 if result == True:
     sources.append(srcdir)
     mirrors.append(mrrdir)
