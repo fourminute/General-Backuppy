@@ -21,6 +21,7 @@ hashtype = "MD5"
 fileshashed = 0
 filescopied = 0
 filesfailed = 0
+finished = False
 def inchashed():
   global fileshashed
   fileshashed += 1
@@ -39,11 +40,16 @@ labeltxt = tk.StringVar()
 winlabel = Label(root, textvariable=labeltxt)
 winlabel.pack(padx=20,pady=10)
 def quit():
+    quit_result = False
     try:#Python2
-        result = tkMessageBox.askyesno("Are you sure?","Cancel operation and exit?")
+        if not finished == True:
+            quit_result = tkMessageBox.askyesno("Are you sure?","Cancel operation and exit?")
     except:#Python3
-        result = messagebox.askyesno("Are you sure?","Cancel operation and exit?")
-    if result == True:
+        if not finished == True:
+            quit_result = messagebox.askyesno("Are you sure?","Cancel operation and exit?")
+    if quit_result == True:
+        exit()
+    if finished == True:
         exit()
 root.protocol("WM_DELETE_WINDOW",quit)
 changelabel("Awaiting File Selection.")
@@ -54,12 +60,10 @@ mirrorfiles = [os.path.join(r,file) for r,d,f in os.walk(mirror) for file in f]
 result = ""
 changelabel("Files Selected.")
 try:#Python2
-    result = tkMessageBox.askyesno("Confirm","Proceed with copy operation?")
+    confirm_result = tkMessageBox.askyesno("Confirm","Proceed with copy operation?")
 except:#Python3
-    result = messagebox.askyesno("Confirm","Proceed with copy operation?")
-
-
-if not result == True:
+    confirm_result = messagebox.askyesno("Confirm","Proceed with copy operation?")
+if not confirm_result == True:
     exit()
 
 
@@ -92,7 +96,7 @@ def start():
                 copyfile(st, newfilepath)
                 inccopied()
                 print("Copied " + "'" +file + "'" + " to " + "'" + ".../" + os.path.basename(newdirectory) + "/" + file + "'"+ ".")
-                changelabel("Copying Files\nProgress: " + str(filescopied + fileshashed) + " of " + str(fncount) + ".")
+                changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed) + " of " + str(fncount) + ".")
                 root.update()
             except:
                 print("Copy operation failed, unknown error.")
@@ -104,13 +108,14 @@ def start():
             mirrorhash = md5sum(newfilepath)
             if srchash == mirrorhash:
                 print("File " + "'" + file + "'" + " exists. Matching " + hashtype + "SUM!")
+                changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed) + " of " + str(fncount) + ".")
             else:
                 print("File " + "'" + file + "'" + " exists, hash didn't match. Overwriting to " + "'" + os.path.dirname(newfilepath) + "'"+ ".")
                 try:
                     copyfile(st, newfilepath)
                     inccopied()
                     print("Copied " + "'" +file + "'" + " to " + "'" + ".../" + os.path.basename(newdirectory) + "/" + file + "'" + ".")
-                    changelabel("Copying Files\nProgress: " + str(filescopied + fileshashed) + " of " + str(fncount) + ".")
+                    changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed) + " of " + str(fncount) + ".")
                 except:
                     print("Failed to copy " + "'" + file + "'" + ".")
                     incfailed()
@@ -119,7 +124,7 @@ def start():
 
 
 start()
-
+finished = True
 try:#Python3
     messagebox.showinfo("Operation Completed","Total Files Copied: " + str(filescopied) + ". \nTotal Files Hashed: " + str(fileshashed) + ".\nFailed To Copy: " + str(filesfailed) + ".")
 except:
