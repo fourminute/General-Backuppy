@@ -7,6 +7,19 @@ import os
 sources = []
 mirrors = []
 hashtype = "MD5"
+fileshashed = 0
+filescopied = 0
+filesfailed = 0
+def inchashed():
+  global fileshashed
+  fileshashed += 1
+def inccopied():
+  global filescopied
+  filescopied += 1
+def incfailed():
+  global filesfailed
+  filesfailed += 1
+  
 try:#Python2
     import Tkinter as tk 
     from Tkinter import filedialog
@@ -59,17 +72,29 @@ def mirror(source, mirror, index):
                     print("Directory " + "'" + os.path.basename(newdirectory) + "'" + " doesn't exist, creating.")
                     os.makedirs(newdirectory)
                     print("Created directory " + os.path.dirname(newfilepath))    
-                copyfile(st, newfilepath)
-                print("Copied file " + "'" +file + "'" + " > \\" + os.path.basename(newdirectory) + "\\" + file)
+                    try:
+                        copyfile(st, newfilepath)
+                        inccopied()
+                        print("Copied file " + "'" +file + "'" + " > \\" + os.path.basename(newdirectory) + "\\" + file)
+                    except:
+                        print("Copy operation failed, unknown error.")
+                        incfailed()
                 
         else:
             srchash = md5sum(st)
+            inchashed()
             mirrorhash = md5sum(newfilepath)
             if srchash == mirrorhash:
                 print("File " + "'" + file + "'" + " exists. Matching " + hashtype + "SUM!")
             else:
                 print("File " + "'" + file + "'" + " exists, hash didn't match. Overwriting file > " + os.path.dirname(newfilepath))
-                copyfile(st, newfilepath)
+                try:
+                    copyfile(st, newfilepath)
+                    inccopied()
+                    print("Copied file " + "'" +file + "'" + " > \\" + os.path.basename(newdirectory) + "\\" + file)
+                except:
+                    print("Copy operation failed, unknown error.")
+                    incfailed()
                     
 
 
@@ -82,3 +107,4 @@ while index < size :
     index += 1
 
 
+messagebox.showinfo("Operation Completed","Total Files Copied: " + str(filescopied) + ". \nTotal Files Hashed: " + str(fileshashed) + ".\nFailed To Copy: " + str(filesfailed) + ".")
