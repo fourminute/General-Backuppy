@@ -1,22 +1,43 @@
 # Created by https://github.com/fourminute
 # It may look sloppy, but it gets the job done
-# Instructions For Use:
-# All you need to do is set a source folder(where you'll be backing up your files/folders from).
-# And a mirror folder(where to copy the files/folders to).
-
-sources = []
-mirrors = []
-
-# List sources and mirrors here!
-sources.append("C:\\FolderToBackup") # Root folder?
-mirrors.append("B:\\MirrorFolder") # Where to mirror this folder?
-# It's that easy.
-
 
 from shutil import copyfile
 import hashlib
 import os
+sources = []
+mirrors = []
 hashtype = "MD5"
+try:#Python2
+    import Tkinter as tk 
+    from Tkinter import filedialog
+    import tkMessageBox
+    from Tkinter import *
+except:#Python3
+    import tkinter as tk 
+    from tkinter import filedialog
+    from tkinter import messagebox
+    from tkinter import *
+
+#Ask for Directory
+root = Tk()
+root.withdraw()
+srcdir = filedialog.askdirectory(title='Please select a source directory.')
+mrrdir = filedialog.askdirectory(title='Please select a mirror directory.')
+result = ""
+try: #Python2
+    result = tkMessageBox.askyesno("Confirm","Proceed with copy operation?")
+except:#Python3
+    result = messagebox.askyesno("Confirm","Proceed with copy operation?")
+
+
+print(result)
+if result == True:
+    sources.append(srcdir)
+    mirrors.append(mrrdir)
+else:
+    exit()
+
+
 
 #Simple MD5SUM
 def md5sum(filename, blocksize=65536):
@@ -40,7 +61,7 @@ def mirror(source, mirror, index):
                     os.makedirs(newdirectory)
                     print("Created directory " + os.path.dirname(newfilepath))    
                 copyfile(st, newfilepath)
-                print("Copied file " + "'" +file + "'" + "...to... \\" + os.path.basename(newdirectory) + "\\" + file)
+                print("Copied file " + "'" +file + "'" + " > \\" + os.path.basename(newdirectory) + "\\" + file)
                 
         else:
             srchash = md5sum(st)
@@ -48,7 +69,7 @@ def mirror(source, mirror, index):
             if srchash == mirrorhash:
                 print("File " + "'" + file + "'" + " exists. Matching " + hashtype + "SUM!")
             else:
-                print("File " + "'" + file + "'" + " exists, but hash didn't match. Copying file > " + os.path.dirname(newfilepath))
+                print("File " + "'" + file + "'" + " exists, hash didn't match. Overwriting file > " + os.path.dirname(newfilepath))
                 copyfile(st, newfilepath)
                     
 
