@@ -17,6 +17,3 @@ Mirrors the contents of two folders to exactly match one another using a 'source
 <br>
 Select a source and mirror folder from the file dialog box. That's it! The script will do the rest.
 <br>
-<h2>Additional Information</h2>
-<br>
-I'm fairly new to Python, the code might be slightly sloppy. But it works. Feel free to make improvements upon it if you can!
