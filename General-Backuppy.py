@@ -16,30 +16,30 @@ except:# Python3
     from tkinter import messagebox
     from tkinter import *
 
-#UI
+# UI
 root = Tk()
 labeltxt = tk.StringVar()
 root.resizable(0,0)
 winlabel = Label(root, textvariable=labeltxt)
-winlabel.pack(padx=20,pady=10)
+winlabel.pack(padx=25,pady=15)
 root.protocol("WM_DELETE_WINDOW",quit)
     
 # Variables
 source_directory = ""
 mirror_directory = ""
-hashtype = "SHA512" # Also supports MD5SUM
+hashtype = "SHA512" # If you wish to use MD5(faster, but less secure) instead, set this to "MD5".
 fileshashed = 0
 filescopied = 0
 filesfailed = 0
 total_file_count = 0
 finished = False
 
-#Set file count
-def file_count(number):
+# Set file count
+def update_file_count(number):
     global total_file_count
     total_file_count = number
     
-# Increase file counter
+# Increase file counter 0 = hashed, 1 = copy, 2 = failed.
 def inc_file_counter(what):
   if what == 0:
     global fileshashed
@@ -103,7 +103,7 @@ def start():
     mirror_directory = filedialog.askdirectory(title='Please select a mirror directory.')
     source_files_array = [os.path.join(r,file) for r,d,f in os.walk(source_directory) for file in f]
     mirror_files_array = [os.path.join(r,file) for r,d,f in os.walk(mirror_directory) for file in f]
-    file_count(sum([len(files) for r, d, files in os.walk(source_directory)]))
+    update_file_count(sum([len(files) for r, d, files in os.walk(source_directory)]))
     changelabel(str(total_file_count) + " Total Files Selected. Proceed?")
     try:# Python2
         confirm_result = tkMessageBox.askyesno("Confirm","Proceed with copy operation?")
@@ -133,8 +133,12 @@ def start():
                 changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_count) + ".")
                 
         else: # Hash file if already exists
-            srchash = sha512sum(source_file_path)
-            mirrorhash = sha512sum(mirror_file_path)
+            if hashtype == "MD5":
+                srchash = sha512sum(source_file_path)
+                mirrorhash = sha512sum(mirror_file_path)
+            elif hashtype == "SHA512":
+                srchash = sha512sum(source_file_path)
+                mirrorhash = sha512sum(mirror_file_path)
             print(str(srchash))
             if srchash == mirrorhash:
                 print("File " + "'" + file_name + "'" + " exists. Matching " + hashtype + "SUM!")
