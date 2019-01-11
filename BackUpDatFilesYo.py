@@ -1,73 +1,73 @@
 # Created by https://github.com/fourminute
-# It may look sloppy, but it gets the job done
+# Hello There
 
 from shutil import copyfile
 import hashlib
 import os
 
-try:#Python2
+try:# Python2
     import Tkinter as tk 
     from Tkinter import filedialog
     import tkMessageBox
     from Tkinter import *
-except:#Python3
+except:# Python3
     import tkinter as tk 
     from tkinter import filedialog
     from tkinter import messagebox
     from tkinter import *
-source = ""
-mirror = ""
+
+#UI
+root = Tk()
+labeltxt = tk.StringVar()
+root.resizable(0,0)
+winlabel = Label(root, textvariable=labeltxt)
+winlabel.pack(padx=20,pady=10)
+root.protocol("WM_DELETE_WINDOW",quit)
+    
+# Variables
+source_directory = ""
+mirror_directory = ""
 hashtype = "MD5"
 fileshashed = 0
 filescopied = 0
 filesfailed = 0
+total_file_number_count = 0
 finished = False
-def inchashed():
-  global fileshashed
-  fileshashed += 1
-def inccopied():
-  global filescopied
-  filescopied += 1
-def incfailed():
-  global filesfailed
-  filesfailed += 1
+
+# Increase file counter
+def inc_file_counter(what):
+  if what == 0:
+    global fileshashed
+    fileshashed += 1
+  elif what == 1:
+    global filescopied
+    filescopied += 1
+  elif what == 2:
+    global filesfailed
+    filesfailed += 1
+
+# Change progress label
 def changelabel(text):
     labeltxt.set(text)
-
-root = Tk()
-root.resizable(0,0)
-labeltxt = tk.StringVar()
-winlabel = Label(root, textvariable=labeltxt)
-winlabel.pack(padx=20,pady=10)
+    root.update()
+    
+# Safely exit
 def quit():
     quit_result = False
-    try:#Python2
+    try:# Python2
         if not finished == True:
             quit_result = tkMessageBox.askyesno("Are you sure?","Cancel operation and exit?")
-    except:#Python3
+    except:# Python3
         if not finished == True:
             quit_result = messagebox.askyesno("Are you sure?","Cancel operation and exit?")
     if quit_result == True:
         exit()
     if finished == True:
         exit()
-root.protocol("WM_DELETE_WINDOW",quit)
-changelabel("Awaiting File Selection.")
-source = filedialog.askdirectory(title='Please select a source directory.')
-mirror = filedialog.askdirectory(title='Please select a mirror directory.')
-sourcefiles = [os.path.join(r,file) for r,d,f in os.walk(source) for file in f]
-mirrorfiles = [os.path.join(r,file) for r,d,f in os.walk(mirror) for file in f]
-result = ""
-changelabel("Files Selected.")
-try:#Python2
-    confirm_result = tkMessageBox.askyesno("Confirm","Proceed with copy operation?")
-except:#Python3
-    confirm_result = messagebox.askyesno("Confirm","Proceed with copy operation?")
-if not confirm_result == True:
-    exit()
 
 
-#Simple MD5SUM
+
+# MD5SUM
 def md5sum(filename, blocksize=65536):
     hash = hashlib.md5()
     with open(filename, "rb") as f:
@@ -76,54 +76,70 @@ def md5sum(filename, blocksize=65536):
     return hash.hexdigest()
 
 
-# Mirror files operation
+# Copy operation
+def copy(source, destination):
+    copyfile(source, destination)
+    inc_file_counter(1)
+    print("Copied " + "'" + file_name + "'" + " to " + "'" + ".../" + os.path.basename(newdirectory) + "/" + file_name + "'"+ ".")
+    changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_number_count) + ".")
+    
+# Main
 def start():
-    for st in sourcefiles:
-        file = os.path.basename(st)
-        directory = os.path.split(st)[0]
-        newfilepath = st.replace(source, mirror)
-        newdirectory = os.path.split(newfilepath)[0]
-        fncount = sum([len(files) for r, d, files in os.walk(source)])
-        #Checking if directory exists
-        if not os.path.exists(newdirectory):
-            print("Directory " + "'" + os.path.basename(newdirectory) + "'" + " doesn't exist, creating.")
-            os.makedirs(newdirectory)
-            print("Created directory " + "'" + os.path.dirname(newfilepath) + "'")
+    changelabel("Awaiting File Selection.")
+    source_directory = filedialog.askdirectory(title='Please select a source directory.')
+    mirror_directory = filedialog.askdirectory(title='Please select a mirror directory.')
+    source_files_array = [os.path.join(r,file) for r,d,f in os.walk(source_directory) for file in f]
+    mirror_files_array = [os.path.join(r,file) for r,d,f in os.walk(mirror_directory) for file in f]
+    total_file_number_count = sum([len(files) for r, d, files in os.walk(source_directory)])
+    changelabel("Files Selected.")
+    try:# Python2
+        confirm_result = tkMessageBox.askyesno("Confirm","Proceed with copy operation?")
+    except:# Python3
+        confirm_result = messagebox.askyesno("Confirm","Proceed with copy operation?")
+    if not confirm_result == True:
+        exit()
+        
+    for source_file_path in source_files_array:
+        file_name = os.path.basename(source_file_path)
+        current_source_file_directory = os.path.split(source_file_path)[0]
+        mirror_file_path = source_file_path.replace(source_directory, mirror_directory)
+        current_mirror_file_directory = os.path.split(mirror_file_path)[0]
+        # Checking if directory exists
+        if not os.path.exists(current_mirror_file_directory):
+            print("Directory " + "'" + os.path.basename(current_mirror_file_directory) + "'" + " doesn't exist, creating.")
+            os.makedirs(current_mirror_file_directory)
+            print("Created directory ..." + "'" + os.path.dirname(mirror_file_path) + "'")
                 
-        #Copy operation
-        if not os.path.exists(newfilepath):
+        # Try to copy
+        if not os.path.exists(mirror_file_path):
             try:
-                copyfile(st, newfilepath)
-                inccopied()
-                print("Copied " + "'" +file + "'" + " to " + "'" + ".../" + os.path.basename(newdirectory) + "/" + file + "'"+ ".")
-                changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed) + " of " + str(fncount) + ".")
-                root.update()
+                copy(source_file_path, mirror_file_path)
             except:
                 print("Copy operation failed, unknown error.")
-                incfailed()
+                inc_file_counter(2)
+                changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_number_count) + ".")
                 
-        else:
-            srchash = md5sum(st)
-            inchashed()
-            mirrorhash = md5sum(newfilepath)
+        else: # Hash file if already exists
+            srchash = md5sum(source_file_path)
+            mirrorhash = md5sum(mirror_file_path)
             if srchash == mirrorhash:
-                print("File " + "'" + file + "'" + " exists. Matching " + hashtype + "SUM!")
-                changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed) + " of " + str(fncount) + ".")
-            else:
-                print("File " + "'" + file + "'" + " exists, hash didn't match. Overwriting to " + "'" + os.path.dirname(newfilepath) + "'"+ ".")
+                print("File " + "'" + file_name + "'" + " exists. Matching " + hashtype + "SUM!")
+                inc_file_counter(0)
+                changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_number_count) + ".")
+            else: # Hash different -- proceed with overwrite
+                print("File " + "'" + file_name + "'" + " exists, hash didn't match. Overwriting to " + "'" + os.path.dirname(mirror_file_path) + "'"+ ".")
                 try:
-                    copyfile(st, newfilepath)
-                    inccopied()
-                    print("Copied " + "'" +file + "'" + " to " + "'" + ".../" + os.path.basename(newdirectory) + "/" + file + "'" + ".")
-                    changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed) + " of " + str(fncount) + ".")
+                    copy(source_file_path, mirror_file_path)
                 except:
-                    print("Failed to copy " + "'" + file + "'" + ".")
-                    incfailed()
+                    print("Failed to copy " + "'" + file_name + "'" + ".")
+                    inc_file_counter(2)
+                    changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_number_count) + ".")
+        
                     
 
-
-
+# This is where the fun begins
 start()
+
 finished = True
 try:#Python3
     messagebox.showinfo("Operation Completed","Total Files Copied: " + str(filescopied) + ". \nTotal Files Hashed: " + str(fileshashed) + ".\nFailed To Copy: " + str(filesfailed) + ".")
