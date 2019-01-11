@@ -139,7 +139,6 @@ def start():
             elif hashtype == "SHA512":
                 srchash = sha512sum(source_file_path)
                 mirrorhash = sha512sum(mirror_file_path)
-            print(str(srchash))
             if srchash == mirrorhash:
                 print("File " + "'" + file_name + "'" + " exists. Matching " + hashtype + "SUM!")
                 inc_file_counter(0)
