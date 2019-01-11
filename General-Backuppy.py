@@ -25,8 +25,6 @@ winlabel.pack(padx=25,pady=15)
 root.protocol("WM_DELETE_WINDOW",quit)
     
 # Variables
-source_directory = ""
-mirror_directory = ""
 hashtype = "SHA512" # If you wish to use MD5(faster, but less secure) instead, set this to "MD5".
 fileshashed = 0
 filescopied = 0
