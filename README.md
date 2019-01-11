@@ -7,9 +7,11 @@ Mirrors the contents of two folders to exactly match one another using a 'source
 
 <b>Features</b>
 
-  * MD5SUM of existing files before overwriting(saves time).
+  * SHA512 checksum of existing files, overwriting if necessary. Also supports MD5SUM.
   * Easy-To-Use folder dialog boxes.
-  * Automatically creates directories if they don't exist, filling in the gaps.
+  * File count progress.
+  * Automatically creates directories if they don't exist, including sub-directory trees.
+  * Won't stop even if some files fail to copy.
 <br>
 <h2>Instructions For Use:</h2>
 <br>
