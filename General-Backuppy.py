@@ -93,7 +93,7 @@ def copy(source, destination):
     copyfile(source, destination)
     inc_file_counter(1)
     file_name = os.path.basename(source)
-    print("Copied " + "'" + file_name + "'" + " to " + "'" + ".../" + os.path.basename(destination) + "/" + file_name + "'"+ ".")
+    print("Copied " + "'" + file_name + "'" + " to " + "'" + os.path.split(destination)[0].replace('/', '\\') + "\\" + file_name + "'"+ ".")
     changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_count) + ".")
     
 # Main
@@ -119,9 +119,9 @@ def start():
         current_mirror_file_directory = os.path.split(mirror_file_path)[0]
         # Checking if directory exists
         if not os.path.exists(current_mirror_file_directory):
-            print("Directory " + "'" + os.path.basename(current_mirror_file_directory) + "'" + " doesn't exist, creating.")
+            print("Directory " + "'" + os.path.basename(current_mirror_file_directory).replace('/', '\\') + "'" + " doesn't exist, creating.")
             os.makedirs(current_mirror_file_directory)
-            print("Created directory ..." + "'" + os.path.dirname(mirror_file_path) + "'")
+            print("Created directory " + "'" + os.path.dirname(mirror_file_path).replace('/', '\\') + "'")
                 
         # Try to copy
         if not os.path.exists(mirror_file_path):
@@ -144,7 +144,7 @@ def start():
                 inc_file_counter(0)
                 changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_count) + ".")
             else: # Hash different -- proceed with overwrite
-                print("File " + "'" + file_name + "'" + " exists, hash didn't match. Overwriting to " + "'" + os.path.dirname(mirror_file_path) + "'"+ ".")
+                print("File " + "'" + file_name + "'" + " exists, hash didn't match. Overwriting to " + "'" + os.path.dirname(mirror_file_path).replace('/', '\\') + "'"+ ".")
                 try:
                     copy(source_file_path, mirror_file_path)
                 except:
