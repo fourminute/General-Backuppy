@@ -27,13 +27,18 @@ root.protocol("WM_DELETE_WINDOW",quit)
 # Variables
 source_directory = ""
 mirror_directory = ""
-hashtype = "MD5"
+hashtype = "SHA512" # Also supports MD5SUM
 fileshashed = 0
 filescopied = 0
 filesfailed = 0
-total_file_number_count = 0
+total_file_count = 0
 finished = False
 
+#Set file count
+def file_count(number):
+    global total_file_count
+    total_file_count = number
+    
 # Increase file counter
 def inc_file_counter(what):
   if what == 0:
@@ -75,13 +80,21 @@ def md5sum(filename, blocksize=65536):
             hash.update(block)
     return hash.hexdigest()
 
+# SHA512SUM
+def sha512sum(filename, blocksize=65536):
+    hash = hashlib.sha512()
+    with open(filename, "rb") as f:
+        for block in iter(lambda: f.read(blocksize), b""):
+            hash.update(block)
+    return hash.hexdigest()
 
 # Copy operation
 def copy(source, destination):
     copyfile(source, destination)
     inc_file_counter(1)
-    print("Copied " + "'" + file_name + "'" + " to " + "'" + ".../" + os.path.basename(newdirectory) + "/" + file_name + "'"+ ".")
-    changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_number_count) + ".")
+    file_name = os.path.basename(source)
+    print("Copied " + "'" + file_name + "'" + " to " + "'" + ".../" + os.path.basename(destination) + "/" + file_name + "'"+ ".")
+    changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_count) + ".")
     
 # Main
 def start():
@@ -90,8 +103,8 @@ def start():
     mirror_directory = filedialog.askdirectory(title='Please select a mirror directory.')
     source_files_array = [os.path.join(r,file) for r,d,f in os.walk(source_directory) for file in f]
     mirror_files_array = [os.path.join(r,file) for r,d,f in os.walk(mirror_directory) for file in f]
-    total_file_number_count = sum([len(files) for r, d, files in os.walk(source_directory)])
-    changelabel("Files Selected.")
+    file_count(sum([len(files) for r, d, files in os.walk(source_directory)]))
+    changelabel(str(total_file_count) + " Total Files Selected. Proceed?")
     try:# Python2
         confirm_result = tkMessageBox.askyesno("Confirm","Proceed with copy operation?")
     except:# Python3
@@ -117,15 +130,16 @@ def start():
             except:
                 print("Copy operation failed, unknown error.")
                 inc_file_counter(2)
-                changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_number_count) + ".")
+                changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_count) + ".")
                 
         else: # Hash file if already exists
-            srchash = md5sum(source_file_path)
-            mirrorhash = md5sum(mirror_file_path)
+            srchash = sha512sum(source_file_path)
+            mirrorhash = sha512sum(mirror_file_path)
+            print(str(srchash))
             if srchash == mirrorhash:
                 print("File " + "'" + file_name + "'" + " exists. Matching " + hashtype + "SUM!")
                 inc_file_counter(0)
-                changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_number_count) + ".")
+                changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_count) + ".")
             else: # Hash different -- proceed with overwrite
                 print("File " + "'" + file_name + "'" + " exists, hash didn't match. Overwriting to " + "'" + os.path.dirname(mirror_file_path) + "'"+ ".")
                 try:
@@ -133,7 +147,8 @@ def start():
                 except:
                     print("Failed to copy " + "'" + file_name + "'" + ".")
                     inc_file_counter(2)
-                    changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_number_count) + ".")
+                    changelabel("Copying Files.\nProgress: " + str(filescopied + fileshashed + filesfailed) + " of " + str(total_file_count) + ".")
+
         
                     
 
