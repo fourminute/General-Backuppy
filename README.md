@@ -16,5 +16,7 @@ Mirrors the contents of two folders to exactly match one another using a 'source
 <br>
 <h2>Instructions For Use:</h2>
 <br>
+<b>Python 3 is recommended</b>, but Python 2 should still work.
+<br>
 Select a source and mirror folder from the file dialog box. That's it! The script will do the rest.
 <br>
