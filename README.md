@@ -1,8 +1,6 @@
 # General-Backuppy
 ### Hello There!
 <br>
-<img src="https://i.imgur.com/aJGP9XZ.png">
-<br>
 When all you need to do is simply mirror your files to another folder or external harddrive. 
 <br>
 Mirrors the contents of two folders to exactly match one another using a 'source' folder as reference. 
