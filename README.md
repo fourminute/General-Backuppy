@@ -8,7 +8,7 @@ Mirrors the contents of two folders to exactly match one another using a 'source
 <br>
 <b>Features</b>
 
-  * SHA512 or MD5 checksum of existing files, overwriting if necessary. This can avoid unnecessary overwrites.
+  * SHA512 or MD5 checksum of existing files, avoiding unnecessary overwrites.
   * Easy-To-Use folder dialog boxes.
   * File count progress.
   * Automatically creates directories if they don't exist, including sub-directory trees.
